@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { CompanyList } from "@components/company-list"
-import { StockSummary } from "@/components/stock-summary"
-import { StockChart } from "@/components/stock-chart"
-import { VolumeChart } from "@/components/volume-chart"
-import { MobileNav } from "@/components/mobile-nav"
-import { ChartSkeleton, SummarySkeleton } from "@/components/loading-skeleton"
-import { ErrorDisplay } from "@/components/error-boundary"
-import { useStockData } from "@/hooks/use-stock-data"
+import { StockSummary } from "@components/stock-summary"
+import { StockChart } from "@components/stock-chart"
+import { VolumeChart } from "@components/volume-chart"
+import { MobileNav } from "@components/mobile-nav"
+import { ChartSkeleton, SummarySkeleton } from "@components/loading-skeleton"
+import { ErrorDisplay } from "@components/error-boundary"
+import { useStockData } from "@hooks/use-stock-data"
 import { TrendingUp } from "lucide-react"
-import type { Company } from "@/lib/types"
+import type { Company } from "@lib/types"
 
 export default function StockDashboard() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
