@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from "next/server"
 import { CompanyRepository } from "@/lib/repositories/company-repository"
 import { createSuccessResponse, createErrorResponse } from "@/lib/api-utils"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CompanyList } from "@/components/company-list"
 import { StockSummary } from "@/components/stock-summary"
 import { StockChart } from "@/components/stock-chart"
@@ -14,11 +14,20 @@ import type { Company } from "@/lib/types"
 
 export default function StockDashboard() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
   const { stockData, summary, loading, error } = useStockData(selectedCompany?.id || null)
 
   const handleCompanySelect = (company: Company) => {
     setSelectedCompany(company)
   }
+
+  // Detect window width safely on client
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   return (
     <div className="flex h-screen bg-background">
@@ -85,8 +94,7 @@ export default function StockDashboard() {
                 <TrendingUp className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
                 <h2 className="text-xl font-semibold text-foreground mb-2">Welcome to Stock Dashboard</h2>
                 <p className="text-muted-foreground">
-                  Select a company from the {window.innerWidth < 768 ? "menu" : "sidebar"} to view detailed stock
-                  analysis, price charts, and trading volume data.
+                  Select a company from the {isMobile ? "menu" : "sidebar"} to view detailed stock analysis, price charts, and trading volume data.
                 </p>
               </div>
             </div>
