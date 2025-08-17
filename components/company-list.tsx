@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { Search, Building2 } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { useCompanies } from "@/hooks/use-companies"
-import { ErrorDisplay } from "@/components/error-boundary"
-import type { Company } from "@/lib/types"
-import { formatMarketCap } from "@/lib/api-utils"
+import { Input } from "@components/ui/input"
+import { Card } from "@components/ui/card"
+import { Badge } from "@components/ui/badge"
+import { useCompanies } from "@hooks/use-companies"
+import { ErrorDisplay } from "@components/error-boundary"
+import type { Company } from "@lib/types"
+import { formatMarketCap } from "@lib/api-utils"
 
 interface CompanyListProps {
   selectedCompanyId: string | null
