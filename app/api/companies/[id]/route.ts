@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { CompanyRepository } from "@/lib/repositories/company-repository"
+import { companies } from "@/lib/mock-data"
 import { createSuccessResponse, createErrorResponse, validateCompanyId } from "@/lib/api-utils"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
@@ -10,7 +10,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json(createErrorResponse("Invalid company ID"), { status: 400 })
     }
 
-    const company = await CompanyRepository.findById(id)
+    const company = companies.find((c) => c.id === id)
 
     if (!company) {
       return NextResponse.json(createErrorResponse("Company not found"), { status: 404 })

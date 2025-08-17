@@ -1,37 +1,30 @@
 import { NextResponse } from "next/server"
-import { StockRepository } from "@/lib/repositories/stock-repository"
-import { createSuccessResponse, createErrorResponse, validateCompanyId } from "@/lib/api-utils"
-import { generateStockData, companies } from "@/lib/mock-data"
+import { stockData } from "@/lib/mock-data"
+import type { StockDataPoint } from "@/lib/types"
 
 export async function GET(request: Request, { params }: { params: { companyId: string } }) {
   try {
     const { companyId } = params
 
-    if (!validateCompanyId(companyId)) {
-      return NextResponse.json(createErrorResponse("Invalid company ID"), { status: 400 })
+    // Filter stock data for the specific company
+    const companyStockData = stockData.filter((stock) => stock.companyId === companyId)
+
+    if (companyStockData.length === 0) {
+      return NextResponse.json({ success: false, error: "Company not found" }, { status: 404 })
     }
 
-    try {
-      const chartData = await StockRepository.getChartData(companyId, 30)
+    // Transform data for chart consumption
+    const chartData: StockDataPoint[] = companyStockData.map((stock) => ({
+      date: stock.date,
+      price: stock.close,
+      volume: stock.volume,
+    }))
 
-      if (chartData.length === 0) {
-        return NextResponse.json(createErrorResponse("No stock data found for this company"), { status: 404 })
-      }
-
-      return NextResponse.json(createSuccessResponse(chartData))
-    } catch (dbError) {
-      console.log("[v0] Database error, falling back to mock data:", dbError)
-
-      const company = companies.find((c) => c.id === Number.parseInt(companyId))
-      if (!company) {
-        return NextResponse.json(createErrorResponse("Company not found"), { status: 404 })
-      }
-
-      const mockStockData = generateStockData(company.symbol, 30)
-      return NextResponse.json(createSuccessResponse(mockStockData))
-    }
+    return NextResponse.json({
+      success: true,
+      data: chartData,
+    })
   } catch (error) {
-    console.error("Error fetching stock data:", error)
-    return NextResponse.json(createErrorResponse("Failed to fetch stock data"), { status: 500 })
+    return NextResponse.json({ success: false, error: "Failed to fetch stock data" }, { status: 500 })
   }
 }

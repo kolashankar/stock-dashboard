@@ -88,50 +88,7 @@ export const companies: Company[] = [
 ]
 
 // Generate mock stock data for the last 30 days
-export function generateStockData(symbol: string, days = 30): StockData[] {
-  // Find company by symbol
-  const company = companies.find((c) => c.symbol === symbol)
-  if (!company) {
-    throw new Error(`Company with symbol ${symbol} not found`)
-  }
-
-  const data: StockData[] = []
-  const today = new Date()
-  const basePrice = basePrices[company.id] || 1000
-  let currentPrice = basePrice
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today)
-    date.setDate(date.getDate() - i)
-
-    // Generate realistic price movements
-    const volatility = 0.02 // 2% daily volatility
-    const change = (Math.random() - 0.5) * 2 * volatility
-    currentPrice = currentPrice * (1 + change)
-
-    const open = currentPrice * (1 + (Math.random() - 0.5) * 0.01)
-    const close = currentPrice
-    const high = Math.max(open, close) * (1 + Math.random() * 0.02)
-    const low = Math.min(open, close) * (1 - Math.random() * 0.02)
-    const volume = Math.floor(Math.random() * 10000000) + 1000000
-
-    data.push({
-      id: `${company.id}-${i}`,
-      companyId: company.id,
-      date: date.toISOString().split("T")[0],
-      open: Math.round(open * 100) / 100,
-      high: Math.round(high * 100) / 100,
-      low: Math.round(low * 100) / 100,
-      close: Math.round(close * 100) / 100,
-      volume,
-    })
-  }
-
-  return data
-}
-
-// Generate mock stock data for the last 30 days (original function for internal use)
-function generateStockDataById(companyId: string, basePrice: number): StockData[] {
+function generateStockData(companyId: string, basePrice: number): StockData[] {
   const data: StockData[] = []
   const today = new Date()
   let currentPrice = basePrice
@@ -183,5 +140,5 @@ const basePrices: Record<string, number> = {
 }
 
 export const stockData: StockData[] = companies.flatMap((company) =>
-  generateStockDataById(company.id, basePrices[company.id] || 1000),
+  generateStockData(company.id, basePrices[company.id] || 1000),
 )

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { CompanyList } from "@/components/company-list"
 import { StockSummary } from "@/components/stock-summary"
 import { StockChart } from "@/components/stock-chart"
@@ -14,70 +14,46 @@ import type { Company } from "@/lib/types"
 
 export default function StockDashboard() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
-  const [isMobile, setIsMobile] = useState(false)
   const { stockData, summary, loading, error } = useStockData(selectedCompany?.id || null)
 
-  // Handle company selection
   const handleCompanySelect = (company: Company) => {
     setSelectedCompany(company)
   }
 
-  // Detect mobile screen width safely
-  useEffect(() => {
-    const updateIsMobile = () => setIsMobile(window.innerWidth < 768)
-    updateIsMobile()
-    window.addEventListener("resize", updateIsMobile)
-    return () => window.removeEventListener("resize", updateIsMobile)
-  }, [])
-
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar for desktop */}
+      {/* Desktop Sidebar - Hidden on mobile */}
       <div className="hidden md:block w-80 flex-shrink-0">
-        <CompanyList
-          selectedCompanyId={selectedCompany?.id || null}
-          onCompanySelect={handleCompanySelect}
-        />
+        <CompanyList selectedCompanyId={selectedCompany?.id || null} onCompanySelect={handleCompanySelect} />
       </div>
 
-      {/* Main content */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-muted border-b border-border px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <MobileNav
-                selectedCompanyId={selectedCompany?.id || null}
-                onCompanySelect={handleCompanySelect}
-              />
+              <MobileNav selectedCompanyId={selectedCompany?.id || null} onCompanySelect={handleCompanySelect} />
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-6 w-6 text-accent" />
-                <h1 className="text-lg md:text-xl font-bold text-foreground">
-                  Stock Market Dashboard
-                </h1>
+                <h1 className="text-lg md:text-xl font-bold text-foreground">Stock Market Dashboard</h1>
               </div>
             </div>
-            <div className="hidden sm:block text-sm text-muted-foreground">
-              Real-time market data
-            </div>
+            <div className="hidden sm:block text-sm text-muted-foreground">Real-time market data</div>
           </div>
         </header>
 
-        {/* Main dashboard content */}
+        {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {error ? (
-            <ErrorDisplay
-              title="Failed to load stock data"
-              message={error}
-              onRetry={() => typeof window !== "undefined" && window.location.reload()}
-            />
+            <ErrorDisplay title="Failed to load stock data" message={error} onRetry={() => window.location.reload()} />
           ) : loading && !selectedCompany ? (
             <SummarySkeleton />
           ) : (
             <StockSummary summary={summary} loading={loading} />
           )}
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6 mt-4">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
             <div className="xl:col-span-2">
               {error ? (
                 <ErrorDisplay message="Unable to load price chart" />
@@ -107,11 +83,9 @@ export default function StockDashboard() {
             <div className="mt-8 text-center">
               <div className="max-w-md mx-auto">
                 <TrendingUp className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
-                <h2 className="text-xl font-semibold text-foreground mb-2">
-                  Welcome to Stock Dashboard
-                </h2>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Welcome to Stock Dashboard</h2>
                 <p className="text-muted-foreground">
-                  Select a company from the {isMobile ? "menu" : "sidebar"} to view detailed stock
+                  Select a company from the {window.innerWidth < 768 ? "menu" : "sidebar"} to view detailed stock
                   analysis, price charts, and trading volume data.
                 </p>
               </div>
