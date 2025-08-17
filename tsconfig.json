@@ -15,18 +15,11 @@
     "jsx": "preserve",
     "incremental": true,
     "plugins": [
-      {
-        "name": "next"
-      }
+      { "name": "next" }
     ],
     "paths": {
       "@/*": ["./*"],
-      "@components/*": ["components/*"],
-      "@lib/*": ["lib/*"],
-      "@hooks/*": ["hooks/*"],
-      "@utils/*": ["utils/*"],
-      "@repositories/*": ["repositories/*"],
-      "@app/*": ["app/*"]
+      "@components/*": ["components/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
