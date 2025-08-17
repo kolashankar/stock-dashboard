@@ -1,66 +1,79 @@
 import { NextResponse } from "next/server"
-import { stockData, companies } from "@/lib/mock-data"
-import { createSuccessResponse, createErrorResponse, validateCompanyId } from "@/lib/api-utils"
 
-interface StockSummary {
-  companyId: string
-  companyName: string
-  symbol: string
-  currentPrice: number
-  previousClose: number
-  change: number
-  changePercent: number
-  dayHigh: number
-  dayLow: number
-  volume: number
-  marketCap: number
+const mockCompanies = [
+  { id: "1", name: "Reliance Industries", symbol: "RELIANCE", marketCap: 1500000000000 },
+  { id: "2", name: "Tata Consultancy Services", symbol: "TCS", marketCap: 1200000000000 },
+  { id: "3", name: "HDFC Bank", symbol: "HDFCBANK", marketCap: 800000000000 },
+  { id: "4", name: "Infosys", symbol: "INFY", marketCap: 650000000000 },
+  { id: "5", name: "ICICI Bank", symbol: "ICICIBANK", marketCap: 550000000000 },
+]
+
+function generateMockSummary(companyId: string, company: any) {
+  const currentPrice = 1000 + Math.random() * 2000
+  const previousClose = currentPrice * (0.95 + Math.random() * 0.1)
+  const change = currentPrice - previousClose
+  const changePercent = (change / previousClose) * 100
+
+  return {
+    companyId,
+    companyName: company.name,
+    symbol: company.symbol,
+    currentPrice: Math.round(currentPrice * 100) / 100,
+    previousClose: Math.round(previousClose * 100) / 100,
+    change: Math.round(change * 100) / 100,
+    changePercent: Math.round(changePercent * 100) / 100,
+    dayHigh: Math.round(currentPrice * 1.02 * 100) / 100,
+    dayLow: Math.round(currentPrice * 0.98 * 100) / 100,
+    volume: Math.floor(Math.random() * 1000000) + 100000,
+    marketCap: company.marketCap,
+    latestDate: new Date().toISOString().split("T")[0],
+  }
 }
 
 export async function GET(request: Request, { params }: { params: { companyId: string } }) {
   try {
     const { companyId } = params
 
-    if (!validateCompanyId(companyId)) {
-      return NextResponse.json(createErrorResponse("Invalid company ID"), { status: 400 })
+    if (!companyId || companyId === "undefined" || companyId === "null") {
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          message: "Invalid company ID",
+        },
+        { status: 200 }, // Return 200 to avoid HTML error pages
+      )
     }
 
-    const company = companies.find((c) => c.id === companyId)
+    const company = mockCompanies.find((c) => c.id === companyId)
     if (!company) {
-      return NextResponse.json(createErrorResponse("Company not found"), { status: 404 })
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          message: "Company not found",
+        },
+        { status: 200 }, // Return 200 to avoid HTML error pages
+      )
     }
 
-    const companyStockData = stockData.filter((stock) => stock.companyId === companyId)
-    if (companyStockData.length === 0) {
-      return NextResponse.json(createErrorResponse("No stock data available"), { status: 404 })
-    }
+    const summary = generateMockSummary(companyId, company)
 
-    // Sort by date to get latest data
-    const sortedData = companyStockData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    const latestData = sortedData[0]
-    const previousData = sortedData[1]
-
-    const currentPrice = latestData.close
-    const previousClose = previousData ? previousData.close : currentPrice
-    const change = currentPrice - previousClose
-    const changePercent = previousClose !== 0 ? (change / previousClose) * 100 : 0
-
-    const summary: StockSummary = {
-      companyId,
-      companyName: company.name,
-      symbol: company.symbol,
-      currentPrice,
-      previousClose,
-      change: Math.round(change * 100) / 100,
-      changePercent: Math.round(changePercent * 100) / 100,
-      dayHigh: latestData.high,
-      dayLow: latestData.low,
-      volume: latestData.volume,
-      marketCap: company.marketCap,
-    }
-
-    return NextResponse.json(createSuccessResponse(summary))
+    return NextResponse.json({
+      success: true,
+      data: summary,
+      message: "Stock summary fetched successfully",
+    })
   } catch (error) {
     console.error("Error fetching stock summary:", error)
-    return NextResponse.json(createErrorResponse("Failed to fetch stock summary"), { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        data: null,
+        message: "Error fetching stock summary",
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 200 }, // Return 200 to avoid HTML error pages
+    )
   }
 }

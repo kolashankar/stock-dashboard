@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useEffect, useState } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity } from "lucide-react"
@@ -12,8 +12,16 @@ interface VolumeChartProps {
 }
 
 export function VolumeChart({ data, loading }: VolumeChartProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const chartData = useMemo(() => {
-    if (!data || data.length === 0) return []
+    if (!data || data.length === 0) {
+      return []
+    }
 
     return data.map((point) => {
       const date = new Date(point.date)
@@ -34,10 +42,10 @@ export function VolumeChart({ data, loading }: VolumeChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
-        <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
-          <p className="text-sm font-medium text-popover-foreground">{label}</p>
-          <p className="text-lg font-bold text-accent">{data.volume.toLocaleString()}</p>
-          <p className="text-sm text-muted-foreground">Volume</p>
+        <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg">
+          <p className="text-sm font-medium text-gray-900">{label}</p>
+          <p className="text-lg font-bold text-orange-600">{data.volume.toLocaleString()}</p>
+          <p className="text-sm text-gray-600">Volume</p>
         </div>
       )
     }
@@ -46,7 +54,7 @@ export function VolumeChart({ data, loading }: VolumeChartProps) {
 
   if (loading) {
     return (
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Activity className="h-5 w-5" />
@@ -54,7 +62,7 @@ export function VolumeChart({ data, loading }: VolumeChartProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-48 bg-muted animate-pulse rounded"></div>
+          <div className="h-64 bg-gray-100 animate-pulse rounded"></div>
         </CardContent>
       </Card>
     )
@@ -62,7 +70,7 @@ export function VolumeChart({ data, loading }: VolumeChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Activity className="h-5 w-5" />
@@ -70,7 +78,7 @@ export function VolumeChart({ data, loading }: VolumeChartProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-48 flex items-center justify-center text-muted-foreground">
+          <div className="h-64 flex items-center justify-center text-gray-500">
             <p>No volume data available</p>
           </div>
         </CardContent>
@@ -78,36 +86,63 @@ export function VolumeChart({ data, loading }: VolumeChartProps) {
     )
   }
 
+  if (!isMounted) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Volume
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 bg-gray-50 rounded flex items-center justify-center">
+            <div className="text-gray-500">Loading chart...</div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Activity className="h-5 w-5" />
           Trading Volume
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Daily trading volume over 30 days</p>
+        <p className="text-sm text-gray-600">Daily trading volume over 30 days</p>
       </CardHeader>
       <CardContent>
-        <div className="h-48">
+        <div className="h-64 w-full bg-white rounded border" style={{ minHeight: "256px" }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" strokeOpacity={0.7} />
               <XAxis
                 dataKey="formattedDate"
-                stroke="hsl(var(--muted-foreground))"
+                stroke="#374151"
                 fontSize={12}
-                tickLine={false}
-                axisLine={false}
+                tickLine={true}
+                axisLine={true}
+                tick={{ fill: "#374151" }}
               />
               <YAxis
-                stroke="hsl(var(--muted-foreground))"
+                stroke="#374151"
                 fontSize={12}
-                tickLine={false}
-                axisLine={false}
+                tickLine={true}
+                axisLine={true}
                 tickFormatter={(value) => `${value.toFixed(1)}M`}
+                tick={{ fill: "#374151" }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="volumeInMillions" fill="hsl(var(--chart-1))" radius={[2, 2, 0, 0]} opacity={0.8} />
+              <Bar
+                dataKey="volumeInMillions"
+                fill="#F97316"
+                radius={[4, 4, 0, 0]}
+                opacity={0.8}
+                stroke="#EA580C"
+                strokeWidth={1}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
