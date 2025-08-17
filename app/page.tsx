@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CompanyList } from "@/components/company-list"
+import { CompanyList } from "@components/company-list"
 import { StockSummary } from "@/components/stock-summary"
 import { StockChart } from "@/components/stock-chart"
 import { VolumeChart } from "@/components/volume-chart"
